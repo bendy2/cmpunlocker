@@ -101,7 +101,7 @@ diff -Naur a/src/nvidia/src/kernel/gpu/mem_mgr/mem_mgr.c b/src/nvidia/src/kernel
 +    if (devId != 0x20C2 && devId != 0x2082)
 +        return NV_OK;
 +
-+    stockFbBytes = 0x200000000ULL;  /* 8GB */
++    stockFbBytes = 0x200000000ULL;
 +
 +    pHeap = pMemoryManager->pHeap;
 +    if (pHeap == NULL || pHeap->pPmaObject == NULL || !memmgrIsPmaInitialized(pMemoryManager))

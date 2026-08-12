@@ -2,7 +2,7 @@
 
 用于解锁 NVIDIA CMP 170HX（GA100）矿卡的工具。它可恢复因固件/OTP 配置而受限的完整 SM 计算性能和 HBM2e 显存容量。
 
-适用于 Linux 上的 **nvidia-open 驱动 610.43.0x**。cmpunlocker **不会**安装完整的 NVIDIA 用户空间软件包；它只会修补并安装开源内核模块。
+适用于 Linux 上的 **nvidia-open 驱动 610.43.0x 或 610.57.04**。cmpunlocker **不会**安装完整的 NVIDIA 用户空间软件包；它只会修补并安装开源内核模块。
 
 一次安装支持**一张或多张** CMP 170HX GPU，包括 **8GB + 10GB 混插**的系统。每张 GPU 的解锁显存规格会在 GSP 启动时根据其 PCI 设备 ID 选择。
 
@@ -42,7 +42,7 @@ CMP 170HX 使用物理上完整的 GA100 芯片（与 A100 使用相同硅片）
 - Linux（x86-64）
 - Root 权限
 - 一张或多张 NVIDIA CMP 170HX GPU（`10de:20c2` 和/或 `10de:2082`）
-- 已安装 **nvidia-open 610.43.0x**（库文件和固件）
+- 已安装 **nvidia-open 610.43.0x 或 610.57.04**（库文件和固件）
 - 与当前内核匹配的内核头文件（`linux-headers-$(uname -r)` / `kernel-devel`）
 - 已关闭 Secure Boot（修补后的模块未签名）
 - 首次安装时可访问网络（用于下载匹配版本的 `open-gpu-kernel-modules` 源码）
@@ -66,6 +66,8 @@ sudo ./install.sh --profile=10gb
 ```
 
 如果模块无法正常热重载，或任意 GPU 仍显示原始显存容量，请执行一次**冷重启**（完全关机后再开机）。
+
+安装会同时启用 `cmpretrain.service` 作为后备路径。它会逐卡检查实际协商速率；只有明确仍处于 Gen1 的卡才会请求一次 Gen2 重训，已经是 Gen2 或更高的卡不会被触碰。
 
 安装元数据位于 `/lib/modules/$(uname -r)/updates/cmpunlocker/`：
 

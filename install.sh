@@ -278,19 +278,23 @@ options nvidia NVreg_RegistryDwords="RmForceEnableGen2=1;RMPcieLinkSpeed=0x1"
 EOF
 ok "Wrote /etc/modprobe.d/cmp-pcie-gen2.conf"
 
-# Gen2 negotiation now occurs inside the NVIDIA driver's controlled device
-# initialization window. Remove old user-space retrain helpers: they race with
-# BAR0 access after the driver is live and can make a GPU disappear.
-for legacy_unit in cmpretrain.service cmp-gen2-retrain.service; do
+# Replace any historical retrain helper with the guarded multi-GPU fallback.
+# Its script does not touch a link which has already reached Gen2.
+for legacy_unit in cmpretrain.service cmp-gen2-retrain.service gen2.service; do
     systemctl disable --now "${legacy_unit}" 2>/dev/null || true
     systemctl reset-failed "${legacy_unit}" 2>/dev/null || true
 done
 rm -f /etc/systemd/system/cmpretrain.service \
       /etc/systemd/system/cmp-gen2-retrain.service \
+      /etc/systemd/system/gen2.service \
       /usr/local/sbin/retrain.sh \
-      /usr/local/sbin/cmp-gen2-retrain.sh
+      /usr/local/sbin/cmp-gen2-retrain.sh \
+      /usr/local/sbin/gen2-hammer
+install -m 0755 "${SCRIPT_DIR}/tools/retrain.sh" /usr/local/sbin/retrain.sh
+install -m 0644 "${SCRIPT_DIR}/systemd/cmpretrain.service" /etc/systemd/system/cmpretrain.service
 systemctl daemon-reload
-ok "Removed legacy PCIe retrain helpers"
+systemctl enable cmpretrain.service >/dev/null
+ok "Installed guarded PCIe Gen2 fallback retrain service"
 
 step "Step 6/6: Done"
 echo ""

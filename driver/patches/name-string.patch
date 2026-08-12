@@ -1,0 +1,23 @@
+--- a/src/nvidia/src/kernel/gpu/gpu_gspclient.c
++++ b/src/nvidia/src/kernel/gpu/gpu_gspclient.c
+@@ -292,9 +292,20 @@ gpuGetNameString_FWCLIENT
+ )
+ {
+     GspStaticConfigInfo *pGSCI = GPU_GET_GSP_STATIC_INFO(pGpu);
++    NvU32 devId = pGpu->idInfo.PCIDeviceID >> 16;
+
+     portMemCopy(nameStringBuffer, sizeof(pGSCI->gpuNameString),
+                 pGSCI->gpuNameString, sizeof(pGSCI->gpuNameString));
+
++    if (devId == 0x20C2 || devId == 0x2082)
++    {
++        const char cmp170Name[] = "NVIDIA CMP 170HX";
++        portStringCopy(nameStringBuffer, sizeof(pGSCI->gpuNameString),
++                       cmp170Name, sizeof(cmp170Name));
++        NV_PRINTF(LEVEL_ERROR,
++                  "SEC2_DEBUG: name string overridden to '%s' (devId=0x%x)\n",
++                  cmp170Name, devId);
++    }
++
+     return NV_OK;
+ }

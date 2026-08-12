@@ -1,0 +1,14 @@
+[Unit]
+Description=CMP 170HX fallback PCIe Gen2 retrain
+After=systemd-modules-load.service nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+ConditionPathExists=/usr/local/sbin/retrain.sh
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/retrain.sh
+TimeoutStartSec=90
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -73,12 +73,13 @@ if [[ -f "${SERVICE_FILE}" ]]; then
 fi
 pkill -f "${INSTALL_DIR}/daemon/watchdog.py" 2>/dev/null || true
 
-for legacy_unit in cmpretrain.service cmp-gen2-retrain.service; do
+for legacy_unit in cmpretrain.service cmp-gen2-retrain.service gen2.service; do
     systemctl disable --now "${legacy_unit}" 2>/dev/null || true
     systemctl reset-failed "${legacy_unit}" 2>/dev/null || true
 done
 rm -f /etc/systemd/system/cmpretrain.service /usr/local/sbin/retrain.sh
 rm -f /etc/systemd/system/cmp-gen2-retrain.service /usr/local/sbin/cmp-gen2-retrain.sh
+rm -f /etc/systemd/system/gen2.service /usr/local/sbin/gen2-hammer
 rm -f /etc/modprobe.d/cmp-pcie-gen2.conf
 systemctl daemon-reload 2>/dev/null || true
 ok "Removed PCIe Gen2 helpers"

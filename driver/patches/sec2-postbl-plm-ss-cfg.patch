@@ -37,7 +37,7 @@ diff -Naur a/src/nvidia/src/kernel/gpu/gsp/kernel_gsp.c b/src/nvidia/src/kernel/
  
  struct MIG_CI_UPDATE_CALLBACK_PARAMS
  {
-@@ -4805,14 +4820,22 @@
+@@ -4805,14 +4824,23 @@
      if (kgspIsWpr2Up_HAL(pGpu, pKernelGsp) &&
          (!pGpu->getProperty(pGpu, PDB_PROP_GPU_PREINITIALIZED_WPR_REGION)))
      {
@@ -48,7 +48,7 @@ diff -Naur a/src/nvidia/src/kernel/gpu/gsp/kernel_gsp.c b/src/nvidia/src/kernel/
 +                  "WPR2 already up before GSP boot; continuing for recovery\n");
      }
  
--    // Populate WPR meta structure (requires knowing FB size on dGPU, which depends on GFW_BOOT)
+     // Populate WPR meta structure (requires knowing FB size on dGPU, which depends on GFW_BOOT)
      NV_CHECK_OK_OR_RETURN(LEVEL_ERROR, kgspPopulateWprMeta_HAL(pGpu, pKernelGsp, pGspFw));
  
 +    if (_kgspSec2PostblTimingEnabled(pGpu))
@@ -64,7 +64,7 @@ diff -Naur a/src/nvidia/src/kernel/gpu/gsp/kernel_gsp.c b/src/nvidia/src/kernel/
      {
          // If the new FB layout requires a scrubber ucode to scrub additional space, prepare it now
          NV_CHECK_OK_OR_RETURN(LEVEL_ERROR, _kgspPrepareScrubberImageIfNeeded(pGpu, pKernelGsp));
-@@ -4821,6 +4844,122 @@
+@@ -4821,6 +4849,124 @@
      // Setup arguments for bootstrapping GSP
      NV_CHECK_OK_OR_RETURN(LEVEL_ERROR, kgspPrepareForBootstrap_HAL(pGpu, pKernelGsp, KGSP_BOOT_MODE_NORMAL));
  
@@ -84,6 +84,8 @@ diff -Naur a/src/nvidia/src/kernel/gpu/gsp/kernel_gsp.c b/src/nvidia/src/kernel/
 +            { 0x00088ff8U, 0xffffffffU, "XVE_C" },
 +            { 0x00823b00U, 0xffffffffU, "FEAT2" },
 +            { 0x008200fcU, 0xffffffffU, "OPT_PLM" },
++            { 0x0000c840U, 0xffffffffU, "PJTAG_PLM" },
++            { 0x0000c848U, 0xffffffffU, "PJTAG_SEC_PLM" },
 +        };
 +
 +        NvU32 wpr2Lo = GPU_REG_RD32(pGpu, 0x001fa824U);
@@ -92,7 +94,7 @@ diff -Naur a/src/nvidia/src/kernel/gpu/gsp/kernel_gsp.c b/src/nvidia/src/kernel/
 +                  "SEC2_DEBUG: saved WPR2 lo=0x%08x hi=0x%08x\n",
 +                  wpr2Lo, wpr2Hi);
 +
-+        for (plmIdx = 0; plmIdx < 9; plmIdx++)
++        for (plmIdx = 0; plmIdx < 11; plmIdx++)
 +        {
 +            NvBool opened = NV_FALSE;
 +            for (attempt = 0; attempt < 2 && !opened; attempt++)
